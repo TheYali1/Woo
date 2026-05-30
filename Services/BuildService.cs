@@ -123,7 +123,10 @@ public sealed class BuildService
             {
                 await ScaffoldTauriAsync(configuration, projectDirectory, logger, cancellationToken);
                 await RunProcessAsync(GetNpmExecutable(), "install", projectDirectory, logger, cancellationToken);
-                await RunProcessAsync(GetNpmExecutable(), "run tauri -- build", projectDirectory, logger, cancellationToken);
+                var tauriBuildCommand = configuration.SingleExecutable
+                    ? "run tauri -- build --bundles nsis"
+                    : "run tauri -- build --no-bundle";
+                await RunProcessAsync(GetNpmExecutable(), tauriBuildCommand, projectDirectory, logger, cancellationToken);
             }
 
             status = "Success";
@@ -1503,8 +1506,8 @@ public sealed class BuildService
             },
             ["bundle"] = new Dictionary<string, object?>
             {
-                ["active"] = true,
-                ["targets"] = configuration.SingleExecutable ? new[] { "nsis" } : new[] { "msi", "nsis" },
+                ["active"] = configuration.SingleExecutable,
+                ["targets"] = new[] { "nsis" },
                 ["icon"] = new[] { "icons/icon.ico", "icons/icon.png" }
             }
         };
