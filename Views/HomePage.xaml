@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Woo_.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Woo_.Converters"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:LogSeverityBrushConverter x:Key="LogSeverityBrush" />
+    </Page.Resources>
+
+    <ScrollViewer x:Name="HomeScrollViewer" HorizontalScrollBarVisibility="Disabled">
+        <Grid Padding="28" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.96*" />
+                <ColumnDefinition Width="1.04*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Spacing="16">
+                <TextBlock Text="New Export" Style="{ThemeResource TitleTextBlockStyle}" />
+
+                <Border
+                    Padding="18"
+                    CornerRadius="8"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="App Icon" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="92" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border
+                                Width="84"
+                                Height="84"
+                                CornerRadius="8"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                <Image Source="{Binding IconPreviewSource}" Stretch="Uniform" Margin="8" />
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+                                        Visibility="{Binding IsUrlValid, Converter={StaticResource BoolToVisibility}}"
+                                        Command="{Binding FetchIconCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon Glyph="&#xE895;" FontSize="12" />
+                                            <TextBlock Text="Auto fetch from website" />
+                                        </StackPanel>
+                                    </Button>
+                                    <ProgressRing
+                                        Grid.Column="1"
+                                        Width="22"
+                                        Height="22"
+                                        IsActive="{Binding IsFetchingIcon}"
+                                        Visibility="{Binding IsFetchingIcon, Converter={StaticResource BoolToVisibility}}" />
+                                </Grid>
+
+                                <Button Click="ChooseCustomIcon_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE838;" FontSize="12" />
+                                        <TextBlock Text="Choose Custom Icon" />
+                                    </StackPanel>
+                                </Button>
+
+                                <TextBlock
+                                    Text="{Binding IconFetchMessage}"
+                                    TextWrapping="Wrap"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    Visibility="{Binding HasIconFetchMessage, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock
+                                    Text="{Binding CustomIconPath}"
+                                    TextTrimming="CharacterEllipsis"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Padding="18"
+                    CornerRadius="8"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="Export Details" Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+                        <RadioButtons Header="Source" SelectedIndex="{Binding SourceKindIndex, Mode=TwoWay}">
+                            <RadioButton Content="Website URL" />
+                            <RadioButton Content="HTML file" />
+                        </RadioButtons>
+
+                        <StackPanel Spacing="6">
+                            <StackPanel.Visibility>
+                                <Binding Path="IsWebsiteSource" Converter="{StaticResource BoolToVisibility}" />
+                            </StackPanel.Visibility>
+                            <TextBox
+                                x:Name="WebsiteUrlTextBox"
+                                Header="Website URL"
+                                PlaceholderText="https://notion.so"
+                                AllowDrop="True"
+                                DragOver="WebsiteUrlTextBox_DragOver"
+                                Drop="WebsiteUrlTextBox_Drop"
+                                Text="{Binding WebsiteUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{Binding ValidationMessage}"
+                                Visibility="{Binding HasValidationError, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="6" Visibility="{Binding IsLocalSource, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Local Source" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox PlaceholderText="{Binding LocalSourcePlaceholder}" Text="{Binding LocalSourcePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Grid.Column="1" Click="BrowseLocalSource_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE838;" FontSize="12" />
+                                        <TextBlock Text="{Binding LocalSourcePickerLabel}" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <TextBlock
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{Binding ValidationMessage}"
+                                Visibility="{Binding HasValidationError, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    Header="App Name"
+                                    PlaceholderText="Notion"
+                                    Text="{Binding AppName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button
+                                    Grid.Column="1"
+                                    VerticalAlignment="Bottom"
+                                    Command="{Binding FetchAppNameCommand}"
+                                    Visibility="{Binding IsUrlValid, Converter={StaticResource BoolToVisibility}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE895;" FontSize="12" />
+                                        <TextBlock Text="Auto fetch from website" />
+                                    </StackPanel>
+                                </Button>
+                                <ProgressRing
+                                    Grid.Column="2"
+                                    Width="22"
+                                    Height="22"
+                                    VerticalAlignment="Bottom"
+                                    IsActive="{Binding IsFetchingAppName}"
+                                    Visibility="{Binding IsFetchingAppName, Converter={StaticResource BoolToVisibility}}" />
+                            </Grid>
+                            <TextBlock
+                                Text="{Binding AppNameFetchMessage}"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Visibility="{Binding HasAppNameFetchMessage, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+
+                        <RadioButtons Header="Package as" SelectedIndex="{Binding FrameworkIndex, Mode=TwoWay}">
+                            <RadioButton Content="Electron" />
+                            <RadioButton Content="Tauri" />
+                        </RadioButtons>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Output Directory" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding OutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Grid.Column="1" Click="BrowseOutputDirectory_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE838;" FontSize="12" />
+                                        <TextBlock Text="Browse" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+
+                        <Button
+                            HorizontalAlignment="Stretch"
+                            Style="{StaticResource AccentButtonStyle}"
+                            IsEnabled="{Binding CanBuild}"
+                            Click="BuildButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE768;" FontSize="12" />
+                                <TextBlock Text="Build App" />
+                            </StackPanel>
+                        </Button>
+
+                        <ProgressBar
+                            Minimum="0"
+                            Maximum="100"
+                            Value="{Binding BuildProgress}"
+                            Visibility="{Binding BuildLogOpen, Converter={StaticResource BoolToVisibility}}" />
+
+                        <Border
+                            Padding="12"
+                            CornerRadius="8"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            Background="#15171B">
+                            <Grid RowSpacing="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="170" />
+                                </Grid.RowDefinitions>
+
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Console" Foreground="White" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding BuildStatusText}" Foreground="#C8CBD2" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{Binding ElapsedTimeText}" Foreground="#C8CBD2" />
+                                </Grid>
+
+                                <CommandBar Grid.Row="1" DefaultLabelPosition="Right" Background="Transparent" IsOpen="False">
+                                    <AppBarButton Label="Open" Click="OpenOutputFolder_Click" Visibility="{Binding CanOpenOutputFolder, Converter={StaticResource BoolToVisibility}}">
+                                        <AppBarButton.Icon>
+                                            <FontIcon Glyph="&#xE8A7;" FontSize="12" />
+                                        </AppBarButton.Icon>
+                                    </AppBarButton>
+                                    <AppBarButton Label="Stop" Command="{Binding StopBuildCommand}">
+                                        <AppBarButton.Icon>
+                                            <FontIcon Glyph="&#xE71A;" FontSize="12" />
+                                        </AppBarButton.Icon>
+                                    </AppBarButton>
+                                    <AppBarButton Label="Expand" Click="ExpandBuildLog_Click">
+                                        <AppBarButton.Icon>
+                                            <FontIcon Glyph="&#xE740;" FontSize="12" />
+                                        </AppBarButton.Icon>
+                                    </AppBarButton>
+                                    <AppBarButton Label="Clear" Command="{Binding ClearLogCommand}">
+                                        <AppBarButton.Icon>
+                                            <FontIcon Glyph="&#xE894;" FontSize="12" />
+                                        </AppBarButton.Icon>
+                                    </AppBarButton>
+                                    <AppBarButton Label="Copy" Command="{Binding CopyLogCommand}">
+                                        <AppBarButton.Icon>
+                                            <FontIcon Glyph="&#xE8C8;" FontSize="12" />
+                                        </AppBarButton.Icon>
+                                    </AppBarButton>
+                                </CommandBar>
+
+                                <ScrollViewer
+                                    x:Name="MiniLogScrollViewer"
+                                    Grid.Row="2"
+                                    VerticalScrollBarVisibility="Auto"
+                                    HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel>
+                                        <RichTextBlock
+                                            x:Name="MiniLogRichTextBlock"
+                                            IsTextSelectionEnabled="True"
+                                            FontFamily="{StaticResource MonospaceFont}"
+                                            TextWrapping="WrapWholeWords" />
+                                        <Border x:Name="MiniLogBottomAnchor" Height="1" />
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <Border
+                Grid.Column="1"
+                Padding="20"
+                CornerRadius="8"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                VerticalAlignment="Stretch"
+                MinHeight="{Binding ActualHeight, ElementName=HomeScrollViewer}">
+                <StackPanel Spacing="18">
+                    <TextBlock Text="App Options" Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Window" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <Grid ColumnSpacing="16" RowSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <NumberBox Header="Window Width" Minimum="320" Value="{Binding WindowWidth, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1" Header="Window Height" Minimum="240" Value="{Binding WindowHeight, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="1" Header="Allow window resizing" IsOn="{Binding AllowResizing, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="1" Grid.Column="1" Header="Start maximized" IsOn="{Binding StartMaximized, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="2" Header="Show menu bar" IsOn="{Binding ShowMenuBar, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="2" Grid.Column="1" Header="Enable DevTools" IsOn="{Binding EnableDevTools, Mode=TwoWay}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Behavior" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <Grid ColumnSpacing="16" RowSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ToggleSwitch Header="Save cookies" IsOn="{Binding PersistCookies, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Column="1" Header="New link redirect" IsOn="{Binding NewLinkRedirect, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="1" Header="Mouse back/forward navigation" IsOn="{Binding MouseNavigation, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="1" Grid.Column="1" Header="Lock to main URL only" IsOn="{Binding RestrictToMainUrl, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="2" Header="Disable caching" IsOn="{Binding DisableCaching, Mode=TwoWay}" />
+                            <ToggleSwitch Grid.Row="2" Grid.Column="1" Header="Allow downloading" IsOn="{Binding AllowDownloads, Mode=TwoWay}" IsEnabled="{Binding IsElectronSelected}" />
+                            <ToggleSwitch Grid.Row="3" Header="System tray" IsOn="{Binding SystemTray, Mode=TwoWay}" IsEnabled="{Binding IsElectronSelected}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Packaging" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <Grid ColumnSpacing="16" RowSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ToggleSwitch
+                                Header="Include built-in ad blocker (uBlock Origin)"
+                                IsOn="{Binding IncludeAdBlocker, Mode=TwoWay}"
+                                IsEnabled="{Binding IsElectronSelected}"
+                                />
+                            <ToggleSwitch
+                                Grid.Column="1"
+                                Header="Bundle as single exe"
+                                IsOn="{Binding SingleExecutable, Mode=TwoWay}"
+                                IsEnabled="{Binding IsElectronSelected}"
+                                />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="User Agent" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="User Agent Override" PlaceholderText="Optional" Text="{Binding UserAgentOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1" VerticalAlignment="Bottom" Click="UseCurrentUserAgent_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE748;" FontSize="12" />
+                                    <TextBlock Text="Use current" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

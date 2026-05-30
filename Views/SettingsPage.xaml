@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Woo_.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Woo_.Converters"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </Page.Resources>
+
+    <ScrollViewer x:Name="SettingsScrollViewer" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Padding="28" Spacing="16" HorizontalAlignment="Stretch">
+            <TextBlock Text="Settings" Style="{ThemeResource TitleTextBlockStyle}" />
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="General" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Default Output Directory" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding DefaultOutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1" Click="BrowseDefaultOutput_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE838;" FontSize="12" />
+                                <TextBlock Text="Browse" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Header="Default Framework" SelectedIndex="{Binding DefaultFrameworkIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="Electron" />
+                            <ComboBoxItem Content="Tauri" />
+                        </ComboBox>
+                        <ComboBox Grid.Column="1" Header="Theme" SelectedIndex="{Binding ThemeIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="System" />
+                            <ComboBoxItem Content="Light" />
+                            <ComboBoxItem Content="Dark" />
+                        </ComboBox>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="After Build" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ToggleSwitch Header="Notify when build finishes" IsOn="{Binding ShowBuildCompleteNotification, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Column="1" Header="Open app after build" IsOn="{Binding OpenAppAfterBuild, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="1" Header="Open folder after build" IsOn="{Binding OpenFolderAfterBuild, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="2" Grid.ColumnSpan="2" Header="Create desktop shortcut after build" IsOn="{Binding CreateDesktopShortcutAfterBuild, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Build Defaults" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <NumberBox Header="Default Window Width" Minimum="320" Value="{Binding DefaultWindowWidth, Mode=TwoWay}" />
+                        <NumberBox Grid.Column="1" Header="Default Window Height" Minimum="240" Value="{Binding DefaultWindowHeight, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="1" Header="Single exe by default" IsOn="{Binding SingleExeByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="1" Grid.Column="1" Header="Enable DevTools by default" IsOn="{Binding EnableDevToolsByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="2" Header="Allow resizing by default" IsOn="{Binding AllowResizingByDefault, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="2" Grid.Column="1" Header="Start maximized by default" IsOn="{Binding StartMaximizedByDefault, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="3" Header="Show menu bar by default" IsOn="{Binding ShowMenuBarByDefault, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="3" Grid.Column="1" Header="Save cookies by default" IsOn="{Binding PersistCookiesByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="4" Header="New link redirect by default" IsOn="{Binding NewLinkRedirectByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="4" Grid.Column="1" Header="Disable caching by default" IsOn="{Binding DisableCachingByDefault, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="5" Header="Include ad blocker by default" IsOn="{Binding IncludeAdBlockerByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="5" Grid.Column="1" Header="Mouse back/forward by default" IsOn="{Binding MouseNavigationByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="6" Header="Lock to main URL only by default" IsOn="{Binding RestrictToMainUrlByDefault, Mode=TwoWay}"/>
+                        <ToggleSwitch Grid.Row="6" Grid.Column="1" Header="System tray by default" IsOn="{Binding SystemTrayByDefault, Mode=TwoWay}"/>
+                        <Grid Grid.Row="7" Grid.ColumnSpan="2" ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="Default User Agent Override" PlaceholderText="Optional" Text="{Binding DefaultUserAgentOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1" VerticalAlignment="Bottom" Click="UseCurrentDefaultUserAgent_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <FontIcon Glyph="&#xE748;" FontSize="12" />
+                                    <TextBlock Text="Use current" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Settings Backup" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Click="ExportSettings_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xEDE1;" FontSize="12" />
+                                <TextBlock Text="Export Settings JSON" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="ImportSettings_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE8B5;" FontSize="12" />
+                                <TextBlock Text="Import Settings JSON" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Icon" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <RadioButtons Header="Default icon behavior" SelectedIndex="{Binding DefaultIconBehaviorIndex, Mode=TwoWay}">
+                        <RadioButton Content="Auto fetch from website favicon" />
+                        <RadioButton Content="Always prompt for custom icon" />
+                    </RadioButtons>
+                    <NumberBox Header="Favicon fetch timeout (seconds)" Minimum="1" Maximum="60" Value="{Binding FaviconFetchTimeoutSeconds, Mode=TwoWay}" />
+                    <TextBlock Text="Fallback icon" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding FallbackIconPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="1" Click="BrowseFallbackIcon_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE838;" FontSize="12" />
+                                <TextBlock Text="Browse" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Tooling" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <TextBox Header="Node.js path" Text="{Binding NodePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Header="npm path" Text="{Binding NpmPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Header="Rust/Cargo path" Text="{Binding CargoPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Content="Verify Installation" Command="{Binding VerifyToolsCommand}" HorizontalAlignment="Left" />
+                    <ItemsControl ItemsSource="{Binding ToolchainResults}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DisplayText}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="About" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <StackPanel Spacing="12" HorizontalAlignment="Center">
+                        <Image Width="96" Height="96" Source="ms-appx:///Assets/Woo!.png" HorizontalAlignment="Center" />
+                        <TextBlock Text="Version: 1.0.0" TextAlignment="Center" />
+                        <TextBlock Text="License: MIT (Open Source)" TextAlignment="Center" />
+                        <HyperlinkButton Content="GitHub" NavigateUri="https://github.com/TheYali1/Woo" Padding="0" HorizontalAlignment="Center" />
+                        <Button Command="{Binding CheckUpdatesCommand}" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE895;" FontSize="12" />
+                                <TextBlock Text="Check for Updates" />
+                            </StackPanel>
+                        </Button>
+                        <TextBlock Text="{Binding UpdateStatus}" TextAlignment="Center" Visibility="{Binding HasUpdateStatus, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Click="ResetSettings_Click" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE74D;" FontSize="12" />
+                                <TextBlock Text="Reset All Settings" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
