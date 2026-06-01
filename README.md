@@ -10,7 +10,6 @@
 
 ![Woo](https://img.shields.io/badge/Woo%21-Website%20to%20Desktop-8A2BE2?style=for-the-badge)
 ![Windows](https://img.shields.io/badge/Windows-Supported-0078D4?style=for-the-badge&logo=windows11&logoColor=white)
-[![Downloads](https://img.shields.io/github/downloads/TheYali1/Woo/total?style=for-the-badge)](https://github.com/TheYali1/Woo/releases)
 ![Frameworks](https://img.shields.io/badge/Supported_Frameworks-Electron_%26_Tauri-green?style=for-the-badge)
 
 Woo! is a desktop app builder that lets you wrap any website or local HTML file into a clean desktop application.
