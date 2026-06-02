@@ -1,3 +1,6 @@
+> [!NOTE]
+> New Update Soon!
+
 <div align="center">
 
 <p align="center">
