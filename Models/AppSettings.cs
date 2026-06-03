@@ -2,7 +2,7 @@ namespace Woo_.Models;
 
 public sealed class AppSettings
 {
-    public int SettingsSchemaVersion { get; set; } = 2;
+    public int SettingsSchemaVersion { get; set; } = 5;
 
     public string DefaultOutputDirectory { get; set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Woo! Exports");
@@ -12,6 +12,7 @@ public sealed class AppSettings
     public int DefaultWindowWidth { get; set; } = 1280;
     public int DefaultWindowHeight { get; set; } = 800;
     public bool SingleExeByDefault { get; set; }
+    public bool IncludeInstallerByDefault { get; set; }
     public bool IncludeAdBlockerByDefault { get; set; }
     public bool EnableDevToolsByDefault { get; set; }
     public bool AllowResizingByDefault { get; set; } = true;
@@ -23,9 +24,11 @@ public sealed class AppSettings
     public bool RestrictToMainUrlByDefault { get; set; }
     public bool DisableCachingByDefault { get; set; }
     public bool SystemTrayByDefault { get; set; }
+    public bool CustomScriptsByDefault { get; set; }
+    public string DefaultCustomScriptCode { get; set; } = string.Empty;
     public string DefaultUserAgentOverride { get; set; } = string.Empty;
     public string DefaultUserAgentPreset { get; set; } = "Custom";
-    public bool CheckUpdatesOnStartup { get; set; }
+    public bool CheckUpdatesOnStartup { get; set; } = true;
     public bool ShowBuildCompleteNotification { get; set; } = true;
     public bool CreateDesktopShortcutAfterBuild { get; set; }
     public bool OpenAppAfterBuild { get; set; }

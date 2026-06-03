@@ -47,6 +47,12 @@
                             <ComboBoxItem Content="Dark" />
                         </ComboBox>
                     </Grid>
+
+                    <ToggleSwitch
+                        Header="Check updates on startup"
+                        IsOn="{Binding CheckUpdatesOnStartup, Mode=TwoWay}"
+                        OnContent="{x:Null}"
+                        OffContent="{x:Null}" />
                 </StackPanel>
             </Border>
 
@@ -90,6 +96,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <NumberBox Header="Default Window Width" Minimum="320" Value="{Binding DefaultWindowWidth, Mode=TwoWay}" />
@@ -119,27 +126,23 @@
                                 </StackPanel>
                             </Button>
                         </Grid>
+                        <ToggleSwitch Grid.Row="8" Header="Enable Custom Scripts by default" IsOn="{Binding CustomScriptsByDefault, Mode=TwoWay}" />
+                        <ToggleSwitch Grid.Row="8" Grid.Column="1" Header="Include installer by default" IsOn="{Binding IncludeInstallerByDefault, Mode=TwoWay}" />
+                        <StackPanel
+                            Grid.Row="9"
+                            Grid.ColumnSpan="2"
+                            Spacing="6">
+                            <TextBlock Text="Default Custom Script" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <Border
+                                Height="260"
+                                CornerRadius="8"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                Background="#101216">
+                                <WebView2 x:Name="DefaultCustomScriptEditorWebView" />
+                            </Border>
+                        </StackPanel>
                     </Grid>
-                </StackPanel>
-            </Border>
-
-            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Settings Backup" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Button Click="ExportSettings_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xEDE1;" FontSize="12" />
-                                <TextBlock Text="Export Settings JSON" />
-                            </StackPanel>
-                        </Button>
-                        <Button Click="ImportSettings_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE8B5;" FontSize="12" />
-                                <TextBlock Text="Import Settings JSON" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
                 </StackPanel>
             </Border>
 
@@ -187,10 +190,30 @@
 
             <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <StackPanel Spacing="12">
+                    <TextBlock Text="Settings Backup" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Click="ExportSettings_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xEDE1;" FontSize="12" />
+                                <TextBlock Text="Export Settings" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="ImportSettings_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE8B5;" FontSize="12" />
+                                <TextBlock Text="Import Settings" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Padding="18" CornerRadius="8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Spacing="12">
                     <TextBlock Text="About" Style="{ThemeResource SubtitleTextBlockStyle}" />
                     <StackPanel Spacing="12" HorizontalAlignment="Center">
                         <Image Width="96" Height="96" Source="ms-appx:///Assets/Woo!.png" HorizontalAlignment="Center" />
-                        <TextBlock Text="Version: 1.0.0" TextAlignment="Center" />
+                        <TextBlock Text="{Binding VersionText}" TextAlignment="Center" />
                         <TextBlock Text="License: MIT (Open Source)" TextAlignment="Center" />
                         <HyperlinkButton Content="GitHub" NavigateUri="https://github.com/TheYali1/Woo" Padding="0" HorizontalAlignment="Center" />
                         <Button Command="{Binding CheckUpdatesCommand}" HorizontalAlignment="Center">
@@ -200,6 +223,12 @@
                             </StackPanel>
                         </Button>
                         <TextBlock Text="{Binding UpdateStatus}" TextAlignment="Center" Visibility="{Binding HasUpdateStatus, Converter={StaticResource BoolToVisibility}}" />
+                        <HyperlinkButton
+                            Content="{Binding UpdateReleaseUrl}"
+                            Padding="0"
+                            HorizontalAlignment="Center"
+                            Click="UpdateReleaseLink_Click"
+                            Visibility="{Binding HasUpdateReleaseUrl, Converter={StaticResource BoolToVisibility}}" />
                         <Button Click="ResetSettings_Click" HorizontalAlignment="Center">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <FontIcon Glyph="&#xE74D;" FontSize="12" />

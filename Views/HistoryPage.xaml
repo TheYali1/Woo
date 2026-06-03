@@ -109,8 +109,9 @@
                                     <MenuFlyoutItem Text="Open folder" Tag="{Binding}" Click="OpenFolder_Click" />
                                     <MenuFlyoutItem Text="Copy URL" Tag="{Binding}" Click="CopyUrl_Click" />
                                     <MenuFlyoutItem Text="Re-build" Tag="{Binding}" Click="Rebuild_Click" />
+                                    <MenuFlyoutItem Text="Export App Settings" Tag="{Binding}" Click="ExportPreset_Click" />
                                     <MenuFlyoutSeparator />
-                                    <MenuFlyoutItem Text="Delete record" Tag="{Binding}" Click="DeleteRecord_Click" />
+                                    <MenuFlyoutItem Text="Delete" Tag="{Binding}" Click="DeleteRecord_Click" />
                                 </MenuFlyout>
                             </Grid.ContextFlyout>
 
@@ -248,6 +249,26 @@
                     </CommandBar>
 
                     <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+
+                    <StackPanel Spacing="8" Visibility="{Binding SelectedRecord.HasCustomScriptCode, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Custom script" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <Border
+                            MaxHeight="220"
+                            Padding="10"
+                            CornerRadius="8"
+                            Background="#101216"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1">
+                            <ScrollViewer>
+                                <RichTextBlock
+                                    x:Name="CustomScriptPreview"
+                                    FontFamily="{StaticResource MonospaceFont}"
+                                    TextWrapping="Wrap"
+                                    IsTextSelectionEnabled="True"
+                                    Foreground="#E8EBF0" />
+                            </ScrollViewer>
+                        </Border>
+                    </StackPanel>
 
                     <StackPanel Spacing="8">
                         <Grid>

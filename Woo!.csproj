@@ -5,6 +5,9 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>Woo_</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
@@ -16,6 +19,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Monaco\**\*.*" />
+    <Content Remove="Assets\Monaco\**\*.*" />
+    <PRIResource Remove="Assets\Monaco\**\*.*" />
     <Content Include="Assets\Woo!.png" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Assets\Woo!.ico" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Assets\ublock-config.json" CopyToOutputDirectory="PreserveNewest" />
@@ -66,4 +72,14 @@
     <PublishTrimmed>False</PublishTrimmed>
     <ApplicationIcon>Woo!.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <Target Name="CopyMonacoAssets" AfterTargets="Build;Publish">
+    <ItemGroup>
+      <MonacoAsset Include="Assets\Monaco\**\*.*" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(MonacoAsset)"
+      DestinationFiles="@(MonacoAsset->'$(OutDir)Assets\Monaco\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+  </Target>
 </Project>

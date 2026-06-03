@@ -2,6 +2,7 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.Diagnostics;
 using Woo_.Models;
 using Woo_.Views;
 using Windows.Graphics;
@@ -76,14 +77,29 @@ public sealed partial class MainWindow : Window
         var settings = App.SettingsService.Settings;
         if (settings.CheckUpdatesOnStartup)
         {
+            var result = await App.UpdateService.CheckForUpdatesAsync();
+            if (!result.Success || !result.IsUpdateAvailable)
+            {
+                return;
+            }
+
             var dialog = new ContentDialog
             {
                 XamlRoot = xamlRoot,
-                Title = "Woo! is up to date",
-                Content = "Version 1.0.0 is installed.",
-                CloseButtonText = "OK"
+                Title = "Woo! update available",
+                Content = $"Version {result.LatestVersion} is available. You have version {result.CurrentVersion}.",
+                PrimaryButtonText = "Open GitHub",
+                CloseButtonText = "Later"
             };
-            await dialog.ShowAsync();
+            var dialogResult = await dialog.ShowAsync();
+            if (dialogResult == ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(result.ReleaseUrl))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = result.ReleaseUrl,
+                    UseShellExecute = true
+                });
+            }
         }
     }
 

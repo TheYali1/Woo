@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Woo_.Helpers;
 using Woo_.Models;
+using Woo_.Services;
 
 namespace Woo_.ViewModels;
 
@@ -24,8 +25,10 @@ public sealed class HomeViewModel : ObservableObject
     private BitmapImage? _iconPreviewSource;
     private bool _includeAdBlocker;
     private bool _singleExecutable;
+    private bool _includeInstaller;
     private bool _electronIncludeAdBlocker;
     private bool _electronSingleExecutable;
+    private bool _electronIncludeInstaller;
     private double _windowWidth = 1280;
     private double _windowHeight = 800;
     private bool _allowResizing = true;
@@ -41,6 +44,11 @@ public sealed class HomeViewModel : ObservableObject
     private bool _electronAllowDownloads = true;
     private bool _systemTray;
     private bool _electronSystemTray;
+    private bool _customScriptsEnabled;
+    private bool _electronCustomScriptsEnabled;
+    private string _customScriptCode = string.Empty;
+    private string _customScriptValidationMessage = string.Empty;
+    private bool _customScriptValidationSuccess = true;
     private string _userAgentOverride = string.Empty;
     private string _validationMessage = string.Empty;
     private bool _hasValidationError;
@@ -70,8 +78,10 @@ public sealed class HomeViewModel : ObservableObject
         _frameworkIndex = settings.DefaultFramework.Equals("Tauri", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         _includeAdBlocker = settings.IncludeAdBlockerByDefault;
         _singleExecutable = settings.SingleExeByDefault;
+        _includeInstaller = settings.IncludeInstallerByDefault && !settings.SingleExeByDefault;
         _electronIncludeAdBlocker = _includeAdBlocker;
         _electronSingleExecutable = _singleExecutable;
+        _electronIncludeInstaller = _includeInstaller;
         _enableDevTools = settings.EnableDevToolsByDefault;
         _allowResizing = settings.AllowResizingByDefault;
         _startMaximized = settings.StartMaximizedByDefault;
@@ -84,6 +94,9 @@ public sealed class HomeViewModel : ObservableObject
         _electronAllowDownloads = _allowDownloads;
         _systemTray = settings.SystemTrayByDefault;
         _electronSystemTray = _systemTray;
+        _customScriptCode = settings.DefaultCustomScriptCode;
+        _electronCustomScriptsEnabled = settings.CustomScriptsByDefault;
+        _customScriptsEnabled = _frameworkIndex == 0 && settings.CustomScriptsByDefault;
         _userAgentOverride = settings.DefaultUserAgentOverride;
         _windowWidth = settings.DefaultWindowWidth;
         _windowHeight = settings.DefaultWindowHeight;
@@ -182,6 +195,7 @@ public sealed class HomeViewModel : ObservableObject
                 _electronSingleExecutable = _singleExecutable;
                 _electronAllowDownloads = _allowDownloads;
                 _electronSystemTray = _systemTray;
+                _electronCustomScriptsEnabled = _customScriptsEnabled;
             }
 
             if (SetProperty(ref _frameworkIndex, value))
@@ -252,7 +266,25 @@ public sealed class HomeViewModel : ObservableObject
             }
 
             _electronSingleExecutable = value;
-            SetProperty(ref _singleExecutable, value);
+            if (SetProperty(ref _singleExecutable, value) && value)
+            {
+                _electronIncludeInstaller = false;
+                SetProperty(ref _includeInstaller, false, nameof(IncludeInstaller));
+            }
+        }
+    }
+
+    public bool IncludeInstaller
+    {
+        get => _includeInstaller;
+        set
+        {
+            _electronIncludeInstaller = value;
+            if (SetProperty(ref _includeInstaller, value) && value)
+            {
+                _electronSingleExecutable = false;
+                SetProperty(ref _singleExecutable, false, nameof(SingleExecutable));
+            }
         }
     }
 
@@ -352,6 +384,62 @@ public sealed class HomeViewModel : ObservableObject
             _electronSystemTray = value;
             SetProperty(ref _systemTray, value);
         }
+    }
+
+    public bool CustomScriptsEnabled
+    {
+        get => _customScriptsEnabled;
+        set
+        {
+            if (!IsElectronSelected)
+            {
+                SetProperty(ref _customScriptsEnabled, false);
+                return;
+            }
+
+            _electronCustomScriptsEnabled = value;
+            if (SetProperty(ref _customScriptsEnabled, value) &&
+                value &&
+                string.IsNullOrWhiteSpace(CustomScriptCode) &&
+                !string.IsNullOrWhiteSpace(App.SettingsService.Settings.DefaultCustomScriptCode))
+            {
+                CustomScriptCode = App.SettingsService.Settings.DefaultCustomScriptCode;
+            }
+        }
+    }
+
+    public string CustomScriptCode
+    {
+        get => _customScriptCode;
+        set
+        {
+            if (SetProperty(ref _customScriptCode, value))
+            {
+                OnPropertyChanged(nameof(CustomScriptCharacterCountText));
+            }
+        }
+    }
+
+    public string CustomScriptCharacterCountText => $"{CustomScriptCode.Length:N0} chars";
+
+    public string CustomScriptValidationMessage
+    {
+        get => _customScriptValidationMessage;
+        private set
+        {
+            if (SetProperty(ref _customScriptValidationMessage, value))
+            {
+                OnPropertyChanged(nameof(HasCustomScriptValidationMessage));
+            }
+        }
+    }
+
+    public bool HasCustomScriptValidationMessage => !string.IsNullOrWhiteSpace(CustomScriptValidationMessage);
+
+    public bool CustomScriptValidationSuccess
+    {
+        get => _customScriptValidationSuccess;
+        private set => SetProperty(ref _customScriptValidationSuccess, value);
     }
 
     public string UserAgentOverride
@@ -539,6 +627,7 @@ public sealed class HomeViewModel : ObservableObject
             ResolvedIconPath = _resolvedIconPath,
             IncludeAdBlocker = IsElectronSelected && IncludeAdBlocker,
             SingleExecutable = IsElectronSelected && SingleExecutable,
+            IncludeInstaller = IncludeInstaller,
             WindowWidth = Math.Max(320, (int)WindowWidth),
             WindowHeight = Math.Max(240, (int)WindowHeight),
             AllowResizing = AllowResizing,
@@ -552,6 +641,8 @@ public sealed class HomeViewModel : ObservableObject
             DisableCaching = DisableCaching,
             AllowDownloads = IsElectronSelected && AllowDownloads,
             SystemTray = IsElectronSelected && SystemTray,
+            CustomScriptsEnabled = IsElectronSelected && CustomScriptsEnabled,
+            CustomScriptCode = CustomScriptCode,
             CreateDesktopShortcutAfterBuild = App.SettingsService.Settings.CreateDesktopShortcutAfterBuild,
             OpenAppAfterBuild = App.SettingsService.Settings.OpenAppAfterBuild,
             OpenFolderAfterBuild = App.SettingsService.Settings.OpenFolderAfterBuild,
@@ -732,8 +823,10 @@ public sealed class HomeViewModel : ObservableObject
         IconUrl = configuration.IconUrl;
         _electronIncludeAdBlocker = configuration.IncludeAdBlocker;
         _electronSingleExecutable = configuration.SingleExecutable;
+        _electronIncludeInstaller = configuration.IncludeInstaller;
         IncludeAdBlocker = configuration.IncludeAdBlocker;
         SingleExecutable = configuration.SingleExecutable;
+        IncludeInstaller = configuration.IncludeInstaller;
         WindowWidth = configuration.WindowWidth;
         WindowHeight = configuration.WindowHeight;
         AllowResizing = configuration.AllowResizing;
@@ -748,6 +841,10 @@ public sealed class HomeViewModel : ObservableObject
         AllowDownloads = configuration.AllowDownloads;
         _electronSystemTray = configuration.SystemTray;
         SystemTray = configuration.SystemTray;
+        _electronCustomScriptsEnabled = configuration.CustomScriptsEnabled;
+        CustomScriptsEnabled = configuration.CustomScriptsEnabled;
+        CustomScriptCode = configuration.CustomScriptCode;
+        ClearCustomScriptValidationMessage();
         UserAgentOverride = configuration.UserAgentOverride ?? string.Empty;
         ApplyFrameworkConstraints();
 
@@ -757,7 +854,81 @@ public sealed class HomeViewModel : ObservableObject
         }
     }
 
+    public void ResetConfigurationToDefaults()
+    {
+        var defaults = new AppSettings();
+        WebsiteUrl = string.Empty;
+        SourceKindIndex = 0;
+        LocalSourcePath = string.Empty;
+        AppName = string.Empty;
+        FrameworkIndex = defaults.DefaultFramework.Equals("Tauri", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+        OutputDirectory = FileSystemHelper.NormalizeDirectoryPath(defaults.DefaultOutputDirectory);
+        AutoFetchIcon = false;
+        CustomIconPath = null;
+        _resolvedIconPath = null;
+        IconUrl = null;
+        IncludeAdBlocker = defaults.IncludeAdBlockerByDefault;
+        SingleExecutable = defaults.SingleExeByDefault;
+        IncludeInstaller = defaults.IncludeInstallerByDefault && !defaults.SingleExeByDefault;
+        WindowWidth = defaults.DefaultWindowWidth;
+        WindowHeight = defaults.DefaultWindowHeight;
+        AllowResizing = defaults.AllowResizingByDefault;
+        StartMaximized = defaults.StartMaximizedByDefault;
+        ShowMenuBar = defaults.ShowMenuBarByDefault;
+        EnableDevTools = defaults.EnableDevToolsByDefault;
+        NewLinkRedirect = defaults.NewLinkRedirectByDefault;
+        PersistCookies = defaults.PersistCookiesByDefault;
+        MouseNavigation = defaults.MouseNavigationByDefault;
+        RestrictToMainUrl = defaults.RestrictToMainUrlByDefault;
+        DisableCaching = defaults.DisableCachingByDefault;
+        AllowDownloads = true;
+        SystemTray = defaults.SystemTrayByDefault;
+        CustomScriptsEnabled = defaults.CustomScriptsByDefault;
+        CustomScriptCode = defaults.DefaultCustomScriptCode;
+        ClearCustomScriptValidationMessage();
+        UserAgentOverride = defaults.DefaultUserAgentOverride;
+        ValidationMessage = string.Empty;
+        HasValidationError = false;
+        IsUrlValid = false;
+        _electronIncludeAdBlocker = IncludeAdBlocker;
+        _electronSingleExecutable = SingleExecutable;
+        _electronIncludeInstaller = IncludeInstaller;
+        _electronAllowDownloads = AllowDownloads;
+        _electronSystemTray = SystemTray;
+        _electronCustomScriptsEnabled = CustomScriptsEnabled;
+        SetIconPreview(Path.Combine(AppContext.BaseDirectory, "Assets", "Woo!.png"));
+        OnPropertyChanged(nameof(CanBuild));
+    }
+
+    public void ApplyDefaultCustomScriptIfNeeded()
+    {
+        if (CustomScriptsEnabled &&
+            string.IsNullOrWhiteSpace(CustomScriptCode) &&
+            !string.IsNullOrWhiteSpace(App.SettingsService.Settings.DefaultCustomScriptCode))
+        {
+            CustomScriptCode = App.SettingsService.Settings.DefaultCustomScriptCode;
+        }
+    }
+
     private string? IconUrl { get; set; }
+
+    public void SetCustomScriptValidationResult(WooScriptValidationResult result)
+    {
+        CustomScriptValidationSuccess = result.Success;
+        CustomScriptValidationMessage = result.Summary;
+    }
+
+    public void SetCustomScriptValidationMessage(string message, bool success)
+    {
+        CustomScriptValidationSuccess = success;
+        CustomScriptValidationMessage = message;
+    }
+
+    public void ClearCustomScriptValidationMessage()
+    {
+        CustomScriptValidationMessage = string.Empty;
+        CustomScriptValidationSuccess = true;
+    }
 
     public string GetLogText()
     {
@@ -786,13 +957,22 @@ public sealed class HomeViewModel : ObservableObject
             SetProperty(ref _singleExecutable, false, nameof(SingleExecutable));
             SetProperty(ref _allowDownloads, false, nameof(AllowDownloads));
             SetProperty(ref _systemTray, false, nameof(SystemTray));
+            SetProperty(ref _customScriptsEnabled, false, nameof(CustomScriptsEnabled));
             return;
         }
 
         SetProperty(ref _includeAdBlocker, _electronIncludeAdBlocker, nameof(IncludeAdBlocker));
-        SetProperty(ref _singleExecutable, _electronSingleExecutable, nameof(SingleExecutable));
+        SetProperty(ref _includeInstaller, _electronIncludeInstaller, nameof(IncludeInstaller));
+        SetProperty(ref _singleExecutable, _electronIncludeInstaller ? false : _electronSingleExecutable, nameof(SingleExecutable));
         SetProperty(ref _allowDownloads, _electronAllowDownloads, nameof(AllowDownloads));
         SetProperty(ref _systemTray, _electronSystemTray, nameof(SystemTray));
+        SetProperty(ref _customScriptsEnabled, _electronCustomScriptsEnabled, nameof(CustomScriptsEnabled));
+        if (_customScriptsEnabled &&
+            string.IsNullOrWhiteSpace(CustomScriptCode) &&
+            !string.IsNullOrWhiteSpace(App.SettingsService.Settings.DefaultCustomScriptCode))
+        {
+            CustomScriptCode = App.SettingsService.Settings.DefaultCustomScriptCode;
+        }
     }
 
     private void ValidateUrl()

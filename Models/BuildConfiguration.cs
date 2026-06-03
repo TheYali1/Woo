@@ -33,6 +33,7 @@ public sealed class BuildConfiguration
     public string? ResolvedIconPath { get; set; }
     public bool IncludeAdBlocker { get; set; }
     public bool SingleExecutable { get; set; }
+    public bool IncludeInstaller { get; set; }
     public int WindowWidth { get; set; } = 1280;
     public int WindowHeight { get; set; } = 800;
     public bool AllowResizing { get; set; } = true;
@@ -46,6 +47,8 @@ public sealed class BuildConfiguration
     public bool DisableCaching { get; set; }
     public bool AllowDownloads { get; set; } = true;
     public bool SystemTray { get; set; }
+    public bool CustomScriptsEnabled { get; set; }
+    public string CustomScriptCode { get; set; } = string.Empty;
     public bool CreateDesktopShortcutAfterBuild { get; set; }
     public bool OpenAppAfterBuild { get; set; }
     public bool OpenFolderAfterBuild { get; set; }

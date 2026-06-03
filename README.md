@@ -1,10 +1,7 @@
-> [!NOTE]
-> Big update is coming soon! (Very Very Soon...)
-
 <div align="center">
 
 <p align="center">
-  <img src="https://i.imagesup.co/images2/37581162a513ab54dd3df6edb3c694ee13175ebb.png" alt="Woo Logo" Width="500">
+  <img src="https://i.imagesup.co/images2/37581162a513ab54dd3df6edb3c694ee13175ebb.png" alt="Woo Logo" width="500">
 </p>
 
 # Woo!
@@ -12,11 +9,11 @@
 ### Turn websites and local HTML files into desktop apps with Electron or Tauri.
 
 ![Woo](https://img.shields.io/badge/Woo%21-Website%20to%20Desktop-8A2BE2?style=for-the-badge)
-![Windows](https://img.shields.io/badge/Windows-Supported-0078D4?style=for-the-badge&logo=windows11&logoColor=white)
+![Version](https://img.shields.io/badge/Version-1.0.1-blue?style=for-the-badge)
 ![Frameworks](https://img.shields.io/badge/Supported_Frameworks-Electron_%26_Tauri-green?style=for-the-badge)
 
 Woo! is a desktop app builder that lets you wrap any website or local HTML file into a clean desktop application.
-Choose Electron or Tauri, customize the app behavior, set your own icon, override the User Agent, and build your app with a simple visual workflow.
+Choose Electron or Tauri, customize the app behavior, set your own icon, override the User Agent, add custom scripts, export/import app settings, and build your app with a simple visual workflow.
 
 </div>
 
@@ -33,6 +30,8 @@ Choose Electron or Tauri, customize the app behavior, set your own icon, overrid
 ## What is Woo!?
 
 Woo! helps you convert websites and local HTML projects into desktop apps without manually setting up Electron or Tauri projects every time.
+
+It is designed for users who want a fast visual workflow for creating desktop apps from websites, dashboards, tools, games, local HTML projects, and web-based utilities.
 
 ---
 
@@ -57,8 +56,16 @@ Woo! helps you convert websites and local HTML projects into desktop apps withou
 - Add system tray support in Electron
 - Include built-in ad blocker support with uBlock Origin in Electron
 - Bundle the output as a single executable in Electron
+- Include an installer with the software
+- Auto update support
+- Check for updates option
+- Export app settings
+- Import pre-made app settings
+- Restart App Export Settings
+- custom scripts
 - View build logs
 - View build history
+- Secret easter egg
 
 ---
 
@@ -68,14 +75,6 @@ Some features are only available when building with Electron.
 
 | Feature | Electron | Tauri |
 | --- | :---: | :---: |
-| Website to desktop app | ✅ | ✅ |
-| Local HTML to desktop app | ✅ | ✅ |
-| Custom icon | ✅ | ✅ |
-| Fetch website icon | ✅ | ✅ |
-| Fetch website title | ✅ | ✅ |
-| User Agent override | ✅ | ✅ |
-| Build log | ✅ | ✅ |
-| Build history | ✅ | ✅ |
 | System tray | ✅ | ❌ |
 | Allow downloading | ✅ | ❌ |
 | Built-in ad blocker / uBlock Origin | ✅ | ❌ |
@@ -116,10 +115,19 @@ Woo! gives you control over the generated desktop app behavior before building.
 | --- | --- |
 | Built-in ad blocker | Includes uBlock Origin support in Electron builds |
 | Bundle as single EXE | Packages the app as a single executable where supported |
+| Include installer | Allows Woo! to be distributed with an installer |
+
+### Custom Scripts
+
+Woo! includes Custom Scripts support, allowing you to customize the behavior of generated apps.
+
+Custom Scripts can be used to inject custom JavaScript, control page behavior, modify app behavior, automate actions, and create more advanced website to desktop workflows.
+
+Woo! also includes a built-in Docs button for Custom Scripts, making it easy to see available commands, and examples directly inside the software.
 
 ### User Agent
 
-You can override the app User Agent to control how websites detect the generated desktop app.
+Woo! allows you to override the app User Agent to control how websites detect the generated desktop app.
 
 ---
 
@@ -137,7 +145,8 @@ Woo! can run useful actions after the build process finishes:
 ## Build Log and History
 
 Woo! includes a build log so you can follow what happens during the packaging process.
-It also keeps a build history, making it easier to track previous builds, presets, and output results.
+
+It also keeps a build history, making it easier to track previous builds, presets, custom scripts, and output results.
 
 ---
 
@@ -148,17 +157,12 @@ It also keeps a build history, making it easier to track previous builds, preset
 3. Pick Electron or Tauri
 4. Set the app name and icon, or fetch them automatically from the website
 5. Configure the app options
-6. Build the app
-7. Check the build log and output folder
-
+6. Add a custom script if needed
+7. Build the app
 ---
 
 ## Roadmap Ideas
 
-- Auto update support
 - Advanced Tauri options
 - Custom splash screen
-- Installer customization
-- Custom Scripts
-
-</div>
+- React / Next.js support

@@ -31,8 +31,11 @@ public sealed class DatabaseService
                 icon_url TEXT,
                 ad_blocker_enabled INTEGER NOT NULL DEFAULT 0,
                 single_exe INTEGER NOT NULL DEFAULT 0,
+                include_installer INTEGER NOT NULL DEFAULT 0,
                 new_link_redirect INTEGER NOT NULL DEFAULT 0,
                 allow_downloads INTEGER NOT NULL DEFAULT 1,
+                custom_scripts_enabled INTEGER NOT NULL DEFAULT 0,
+                custom_script_code TEXT,
                 window_width INTEGER NOT NULL DEFAULT 1280,
                 window_height INTEGER NOT NULL DEFAULT 800,
                 build_duration_seconds INTEGER NOT NULL DEFAULT 0,
@@ -44,8 +47,11 @@ public sealed class DatabaseService
 
         await command.ExecuteNonQueryAsync();
         await AddColumnIfMissingAsync(connection, "icon_url", "TEXT");
+        await AddColumnIfMissingAsync(connection, "include_installer", "INTEGER NOT NULL DEFAULT 0");
         await AddColumnIfMissingAsync(connection, "new_link_redirect", "INTEGER NOT NULL DEFAULT 0");
         await AddColumnIfMissingAsync(connection, "allow_downloads", "INTEGER NOT NULL DEFAULT 1");
+        await AddColumnIfMissingAsync(connection, "custom_scripts_enabled", "INTEGER NOT NULL DEFAULT 0");
+        await AddColumnIfMissingAsync(connection, "custom_script_code", "TEXT");
         await AddColumnIfMissingAsync(connection, "build_duration_seconds", "INTEGER NOT NULL DEFAULT 0");
     }
 
@@ -60,7 +66,7 @@ public sealed class DatabaseService
         var command = connection.CreateCommand();
         command.CommandText = """
             SELECT id, app_name, url, framework, output_path, icon_path, icon_url,
-                   ad_blocker_enabled, single_exe, new_link_redirect, allow_downloads, window_width, window_height,
+                   ad_blocker_enabled, single_exe, include_installer, new_link_redirect, allow_downloads, custom_scripts_enabled, custom_script_code, window_width, window_height,
                    build_duration_seconds, created_at, status, build_log
             FROM exports
             ORDER BY datetime(created_at) DESC, id DESC;
@@ -88,14 +94,17 @@ public sealed class DatabaseService
                 IconUrl = reader.IsDBNull(6) ? null : reader.GetString(6),
                 AdBlockerEnabled = reader.GetInt32(7) == 1,
                 SingleExe = reader.GetInt32(8) == 1,
-                NewLinkRedirect = reader.GetInt32(9) == 1,
-                AllowDownloads = reader.GetInt32(10) == 1,
-                WindowWidth = reader.GetInt32(11),
-                WindowHeight = reader.GetInt32(12),
-                BuildDurationSeconds = reader.GetInt32(13),
-                CreatedAt = DateTime.TryParse(reader.GetString(14), out var createdAt) ? createdAt : DateTime.Now,
-                Status = reader.GetString(15),
-                BuildLog = reader.IsDBNull(16) ? null : reader.GetString(16)
+                IncludeInstaller = reader.GetInt32(9) == 1,
+                NewLinkRedirect = reader.GetInt32(10) == 1,
+                AllowDownloads = reader.GetInt32(11) == 1,
+                CustomScriptsEnabled = reader.GetInt32(12) == 1,
+                CustomScriptCode = reader.IsDBNull(13) ? null : reader.GetString(13),
+                WindowWidth = reader.GetInt32(14),
+                WindowHeight = reader.GetInt32(15),
+                BuildDurationSeconds = reader.GetInt32(16),
+                CreatedAt = DateTime.TryParse(reader.GetString(17), out var createdAt) ? createdAt : DateTime.Now,
+                Status = reader.GetString(18),
+                BuildLog = reader.IsDBNull(19) ? null : reader.GetString(19)
             });
         }
 
@@ -112,12 +121,12 @@ public sealed class DatabaseService
         command.CommandText = """
             INSERT INTO exports (
                 app_name, url, framework, output_path, icon_path, icon_url,
-                ad_blocker_enabled, single_exe, new_link_redirect, allow_downloads, window_width, window_height,
+                ad_blocker_enabled, single_exe, include_installer, new_link_redirect, allow_downloads, custom_scripts_enabled, custom_script_code, window_width, window_height,
                 build_duration_seconds, created_at, status, build_log
             )
             VALUES (
                 $app_name, $url, $framework, $output_path, $icon_path, $icon_url,
-                $ad_blocker_enabled, $single_exe, $new_link_redirect, $allow_downloads, $window_width, $window_height,
+                $ad_blocker_enabled, $single_exe, $include_installer, $new_link_redirect, $allow_downloads, $custom_scripts_enabled, $custom_script_code, $window_width, $window_height,
                 $build_duration_seconds, $created_at, $status, $build_log
             );
             """;
@@ -130,8 +139,11 @@ public sealed class DatabaseService
         command.Parameters.AddWithValue("$icon_url", (object?)record.IconUrl ?? DBNull.Value);
         command.Parameters.AddWithValue("$ad_blocker_enabled", record.AdBlockerEnabled ? 1 : 0);
         command.Parameters.AddWithValue("$single_exe", record.SingleExe ? 1 : 0);
+        command.Parameters.AddWithValue("$include_installer", record.IncludeInstaller ? 1 : 0);
         command.Parameters.AddWithValue("$new_link_redirect", record.NewLinkRedirect ? 1 : 0);
         command.Parameters.AddWithValue("$allow_downloads", record.AllowDownloads ? 1 : 0);
+        command.Parameters.AddWithValue("$custom_scripts_enabled", record.CustomScriptsEnabled ? 1 : 0);
+        command.Parameters.AddWithValue("$custom_script_code", (object?)record.CustomScriptCode ?? DBNull.Value);
         command.Parameters.AddWithValue("$window_width", record.WindowWidth);
         command.Parameters.AddWithValue("$window_height", record.WindowHeight);
         command.Parameters.AddWithValue("$build_duration_seconds", record.BuildDurationSeconds);

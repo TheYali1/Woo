@@ -10,7 +10,7 @@
   <Identity
     Name="19c6fd9c-d8df-4daa-ad1c-e52248512dcb"
     Publisher="CN=TheYali"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="19c6fd9c-d8df-4daa-ad1c-e52248512dcb" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

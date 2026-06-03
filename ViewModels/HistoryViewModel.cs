@@ -141,7 +141,7 @@ public sealed class HistoryViewModel : ObservableObject
     public async Task ExportCsvAsync(string path)
     {
         var builder = new StringBuilder();
-        builder.AppendLine("App Name,Website URL,Framework,Output Path,Icon URL,Icon Path,Created At,Duration,Status,Ad Blocker,Single exe,New Link Redirect");
+        builder.AppendLine("App Name,Website URL,Framework,Output Path,Icon URL,Icon Path,Created At,Duration,Status,Ad Blocker,Single exe,Installer,New Link Redirect,Custom Scripts,Custom Script Code");
 
         foreach (var record in FilteredRecords)
         {
@@ -157,7 +157,10 @@ public sealed class HistoryViewModel : ObservableObject
                 Csv(record.Status),
                 record.AdBlockerEnabled ? "Yes" : "No",
                 record.SingleExe ? "Yes" : "No",
-                record.NewLinkRedirect ? "Yes" : "No"));
+                record.IncludeInstaller ? "Yes" : "No",
+                record.NewLinkRedirect ? "Yes" : "No",
+                record.CustomScriptsEnabled ? "Yes" : "No",
+                Csv(record.CustomScriptCode ?? string.Empty)));
         }
 
         await File.WriteAllTextAsync(path, builder.ToString(), Encoding.UTF8);
@@ -221,7 +224,14 @@ public sealed class HistoryViewModel : ObservableObject
             return;
         }
 
-        var configuration = new BuildConfiguration
+        var configuration = CreateConfiguration(record);
+
+        App.MainWindow?.NavigateToHome(configuration);
+    }
+
+    public BuildConfiguration CreateConfiguration(ExportRecord record)
+    {
+        return new BuildConfiguration
         {
             WebsiteUrl = record.Url,
             SourceKind = InferSourceKind(record.Url),
@@ -235,13 +245,14 @@ public sealed class HistoryViewModel : ObservableObject
             IconUrl = record.IconUrl,
             IncludeAdBlocker = record.AdBlockerEnabled,
             SingleExecutable = record.SingleExe,
+            IncludeInstaller = record.IncludeInstaller,
             NewLinkRedirect = record.NewLinkRedirect,
             AllowDownloads = record.AllowDownloads,
+            CustomScriptsEnabled = record.CustomScriptsEnabled,
+            CustomScriptCode = record.CustomScriptCode ?? string.Empty,
             WindowWidth = record.WindowWidth,
             WindowHeight = record.WindowHeight
         };
-
-        App.MainWindow?.NavigateToHome(configuration);
     }
 
     private static AppSourceKind InferSourceKind(string value)

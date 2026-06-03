@@ -14,6 +14,7 @@ public sealed class SettingsViewModel : ObservableObject
     private double _defaultWindowWidth;
     private double _defaultWindowHeight;
     private bool _singleExeByDefault;
+    private bool _includeInstallerByDefault;
     private bool _includeAdBlockerByDefault;
     private bool _enableDevToolsByDefault;
     private bool _allowResizingByDefault;
@@ -25,6 +26,8 @@ public sealed class SettingsViewModel : ObservableObject
     private bool _restrictToMainUrlByDefault;
     private bool _disableCachingByDefault;
     private bool _systemTrayByDefault;
+    private bool _customScriptsByDefault;
+    private string _defaultCustomScriptCode;
     private string _defaultUserAgentOverride;
     private int _defaultUserAgentPresetIndex;
     private bool _checkUpdatesOnStartup;
@@ -39,6 +42,8 @@ public sealed class SettingsViewModel : ObservableObject
     private string _npmPath;
     private string _cargoPath;
     private string _updateStatus = string.Empty;
+    private string _updateReleaseUrl = string.Empty;
+    private int _updateStatusVersion;
 
     public SettingsViewModel()
     {
@@ -54,6 +59,7 @@ public sealed class SettingsViewModel : ObservableObject
         _defaultWindowWidth = settings.DefaultWindowWidth;
         _defaultWindowHeight = settings.DefaultWindowHeight;
         _singleExeByDefault = settings.SingleExeByDefault;
+        _includeInstallerByDefault = settings.IncludeInstallerByDefault && !settings.SingleExeByDefault;
         _includeAdBlockerByDefault = settings.IncludeAdBlockerByDefault;
         _enableDevToolsByDefault = settings.EnableDevToolsByDefault;
         _allowResizingByDefault = settings.AllowResizingByDefault;
@@ -65,6 +71,8 @@ public sealed class SettingsViewModel : ObservableObject
         _restrictToMainUrlByDefault = settings.RestrictToMainUrlByDefault;
         _disableCachingByDefault = settings.DisableCachingByDefault;
         _systemTrayByDefault = settings.SystemTrayByDefault;
+        _customScriptsByDefault = settings.CustomScriptsByDefault;
+        _defaultCustomScriptCode = settings.DefaultCustomScriptCode;
         _defaultUserAgentOverride = settings.DefaultUserAgentOverride;
         _defaultUserAgentPresetIndex = UserAgentPresets.IndexOf(settings.DefaultUserAgentPreset);
         if (_defaultUserAgentPresetIndex < 0)
@@ -84,7 +92,7 @@ public sealed class SettingsViewModel : ObservableObject
         _cargoPath = settings.CargoPath ?? string.Empty;
 
         VerifyToolsCommand = new AsyncRelayCommand(VerifyToolsAsync);
-        CheckUpdatesCommand = new RelayCommand(() => UpdateStatus = "You're up to date.");
+        CheckUpdatesCommand = new AsyncRelayCommand(CheckUpdatesAsync);
     }
 
     public ObservableCollection<ToolchainProbeResult> ToolchainResults { get; } = [];
@@ -97,7 +105,8 @@ public sealed class SettingsViewModel : ObservableObject
         "Firefox"
     ];
     public IAsyncRelayCommand VerifyToolsCommand { get; }
-    public IRelayCommand CheckUpdatesCommand { get; }
+    public IAsyncRelayCommand CheckUpdatesCommand { get; }
+    public string VersionText => $"Version: {AppUpdateService.CurrentVersion}";
 
     public string DefaultOutputDirectory
     {
@@ -173,6 +182,27 @@ public sealed class SettingsViewModel : ObservableObject
             if (SetProperty(ref _singleExeByDefault, value))
             {
                 App.SettingsService.Settings.SingleExeByDefault = value;
+                if (value)
+                {
+                    IncludeInstallerByDefault = false;
+                }
+                Save();
+            }
+        }
+    }
+
+    public bool IncludeInstallerByDefault
+    {
+        get => _includeInstallerByDefault;
+        set
+        {
+            if (SetProperty(ref _includeInstallerByDefault, value))
+            {
+                App.SettingsService.Settings.IncludeInstallerByDefault = value;
+                if (value)
+                {
+                    SingleExeByDefault = false;
+                }
                 Save();
             }
         }
@@ -316,6 +346,32 @@ public sealed class SettingsViewModel : ObservableObject
             if (SetProperty(ref _systemTrayByDefault, value))
             {
                 App.SettingsService.Settings.SystemTrayByDefault = value;
+                Save();
+            }
+        }
+    }
+
+    public bool CustomScriptsByDefault
+    {
+        get => _customScriptsByDefault;
+        set
+        {
+            if (SetProperty(ref _customScriptsByDefault, value))
+            {
+                App.SettingsService.Settings.CustomScriptsByDefault = value;
+                Save();
+            }
+        }
+    }
+
+    public string DefaultCustomScriptCode
+    {
+        get => _defaultCustomScriptCode;
+        set
+        {
+            if (SetProperty(ref _defaultCustomScriptCode, value))
+            {
+                App.SettingsService.Settings.DefaultCustomScriptCode = value;
                 Save();
             }
         }
@@ -510,12 +566,50 @@ public sealed class SettingsViewModel : ObservableObject
 
     public bool HasUpdateStatus => !string.IsNullOrWhiteSpace(UpdateStatus);
 
+    public string UpdateReleaseUrl
+    {
+        get => _updateReleaseUrl;
+        private set
+        {
+            if (SetProperty(ref _updateReleaseUrl, value))
+            {
+                OnPropertyChanged(nameof(HasUpdateReleaseUrl));
+                OnPropertyChanged(nameof(UpdateReleaseUri));
+            }
+        }
+    }
+
+    public Uri? UpdateReleaseUri => string.IsNullOrWhiteSpace(UpdateReleaseUrl)
+        ? null
+        : new Uri(UpdateReleaseUrl);
+
+    public bool HasUpdateReleaseUrl => !string.IsNullOrWhiteSpace(UpdateReleaseUrl);
+
     public async Task VerifyToolsAsync()
     {
         ToolchainResults.Clear();
         foreach (var result in await App.ToolchainService.VerifyAsync(App.SettingsService.Settings))
         {
             ToolchainResults.Add(result);
+        }
+    }
+
+    public async Task CheckUpdatesAsync()
+    {
+        var version = Interlocked.Increment(ref _updateStatusVersion);
+        UpdateStatus = "Checking for updates...";
+        UpdateReleaseUrl = string.Empty;
+        var result = await App.UpdateService.CheckForUpdatesAsync();
+        UpdateStatus = result.Message;
+        UpdateReleaseUrl = result.IsUpdateAvailable && !string.IsNullOrWhiteSpace(result.ReleaseUrl)
+            ? result.ReleaseUrl
+            : string.Empty;
+
+        await Task.Delay(3000);
+        if (!result.IsUpdateAvailable && version == _updateStatusVersion)
+        {
+            UpdateStatus = string.Empty;
+            UpdateReleaseUrl = string.Empty;
         }
     }
 
@@ -539,6 +633,7 @@ public sealed class SettingsViewModel : ObservableObject
         DefaultWindowWidth = fresh.DefaultWindowWidth;
         DefaultWindowHeight = fresh.DefaultWindowHeight;
         SingleExeByDefault = fresh.SingleExeByDefault;
+        IncludeInstallerByDefault = fresh.IncludeInstallerByDefault;
         IncludeAdBlockerByDefault = fresh.IncludeAdBlockerByDefault;
         EnableDevToolsByDefault = fresh.EnableDevToolsByDefault;
         AllowResizingByDefault = fresh.AllowResizingByDefault;
@@ -550,6 +645,8 @@ public sealed class SettingsViewModel : ObservableObject
         RestrictToMainUrlByDefault = fresh.RestrictToMainUrlByDefault;
         DisableCachingByDefault = fresh.DisableCachingByDefault;
         SystemTrayByDefault = fresh.SystemTrayByDefault;
+        CustomScriptsByDefault = fresh.CustomScriptsByDefault;
+        DefaultCustomScriptCode = fresh.DefaultCustomScriptCode;
         DefaultUserAgentPresetIndex = fresh.DefaultUserAgentPresetIndex;
         DefaultUserAgentOverride = fresh.DefaultUserAgentOverride;
         CheckUpdatesOnStartup = fresh.CheckUpdatesOnStartup;

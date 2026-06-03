@@ -295,7 +295,32 @@
                 VerticalAlignment="Stretch"
                 MinHeight="{Binding ActualHeight, ElementName=HomeScrollViewer}">
                 <StackPanel Spacing="18">
-                    <TextBlock Text="App Options" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="App Options" Style="{ThemeResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
+                        <Button
+                            Grid.Column="1"
+                            Width="34"
+                            Height="34"
+                            Padding="0"
+                            Click="ImportAppPreset_Click"
+                            ToolTipService.ToolTip="Import app settings">
+                            <FontIcon Glyph="&#xE8B5;" FontSize="12" />
+                        </Button>
+                        <Button
+                            Grid.Column="2"
+                            Width="34"
+                            Height="34"
+                            Padding="0"
+                            Click="ResetAppOptions_Click"
+                            ToolTipService.ToolTip="Restart app options">
+                            <FontIcon Glyph="&#xE777;" FontSize="12" />
+                        </Button>
+                    </Grid>
 
                     <StackPanel Spacing="10">
                         <TextBlock Text="Window" Style="{ThemeResource BodyStrongTextBlockStyle}" />
@@ -348,6 +373,10 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
                             <ToggleSwitch
                                 Header="Include built-in ad blocker (uBlock Origin)"
                                 IsOn="{Binding IncludeAdBlocker, Mode=TwoWay}"
@@ -359,11 +388,16 @@
                                 IsOn="{Binding SingleExecutable, Mode=TwoWay}"
                                 IsEnabled="{Binding IsElectronSelected}"
                                 />
+                            <ToggleSwitch
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Header="Include installer"
+                                IsOn="{Binding IncludeInstaller, Mode=TwoWay}"
+                                />
                         </Grid>
                     </StackPanel>
 
                     <StackPanel Spacing="10">
-                        <TextBlock Text="User Agent" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                         <Grid ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -377,6 +411,54 @@
                                 </StackPanel>
                             </Button>
                         </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="10" Visibility="{Binding IsElectronSelected, Converter={StaticResource BoolToVisibility}}">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ToggleSwitch Header="Enable Custom Scripts" IsOn="{Binding CustomScriptsEnabled, Mode=TwoWay}" />
+                            <StackPanel
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding CustomScriptsEnabled, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock
+                                    Text="{Binding CustomScriptCharacterCountText}"
+                                    VerticalAlignment="Center"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <Button
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    Click="CustomScriptDocs_Click"
+                                    ToolTipService.ToolTip="Docs">
+                                    <FontIcon Glyph="&#xE946;" FontSize="12" />
+                                </Button>
+                                <Button
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    Click="ClearCustomScript_Click"
+                                    ToolTipService.ToolTip="Clear">
+                                    <FontIcon Glyph="&#xE894;" FontSize="12" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Spacing="10" Visibility="{Binding CustomScriptsEnabled, Converter={StaticResource BoolToVisibility}}">
+                            <Border
+                                Height="360"
+                                CornerRadius="8"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                Background="#101216">
+                                <WebView2 x:Name="CustomScriptEditorWebView" />
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Border>

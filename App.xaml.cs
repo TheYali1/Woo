@@ -18,6 +18,7 @@ public partial class App : Application
     public static IconService IconService { get; private set; } = null!;
     public static FaviconService FaviconService { get; private set; } = null!;
     public static BuildService BuildService { get; private set; } = null!;
+    public static AppUpdateService UpdateService { get; private set; } = null!;
     public static HomeViewModel HomeViewModel { get; private set; } = null!;
     public static MainWindow? MainWindow { get; private set; }
     public static nint MainWindowHandle { get; set; }
@@ -110,6 +111,7 @@ public partial class App : Application
         IconService = new IconService();
         FaviconService = new FaviconService(IconService, SettingsService);
         BuildService = new BuildService(ToolchainService, IconService, FaviconService, DatabaseService, SettingsService);
+        UpdateService = new AppUpdateService();
         HomeViewModel = new HomeViewModel();
     }
 }

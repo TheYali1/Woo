@@ -78,6 +78,25 @@ public sealed class AppSettingsService
             settings.SettingsSchemaVersion = 2;
         }
 
+        if (settings.SettingsSchemaVersion < 3)
+        {
+            settings.CheckUpdatesOnStartup = true;
+            settings.SettingsSchemaVersion = 3;
+        }
+
+        if (settings.SettingsSchemaVersion < 4)
+        {
+            settings.CustomScriptsByDefault = false;
+            settings.DefaultCustomScriptCode = string.Empty;
+            settings.SettingsSchemaVersion = 4;
+        }
+
+        if (settings.SettingsSchemaVersion < 5)
+        {
+            settings.IncludeInstallerByDefault = false;
+            settings.SettingsSchemaVersion = 5;
+        }
+
         if (FileSystemHelper.TryNormalizeDirectoryPath(settings.DefaultOutputDirectory, out var outputDirectory, out _))
         {
             settings.DefaultOutputDirectory = outputDirectory;
