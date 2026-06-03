@@ -1,5 +1,5 @@
 > [!NOTE]
-> New Update Soon!
+> Big update is coming soon! (Very Very Soon...)
 
 <div align="center">
 
