@@ -23,7 +23,7 @@ Choose Electron or Tauri, customize the app behavior, set your own icon, overrid
 
 ||||
 | :---: | :---: | :---: |
-| <img src="https://i.imagesup.co/images2/bcfbf373c5464ad3629d7153392ebd4771625c48.png" width="450"><br>**Build Page** | <img src="https://i.imagesup.co/images2/a5f0732ed90f53dec185faba26b946dea1bdfa89.png" width="450"><br>**History Page** | <img src="https://i.imagesup.co/images2/83a11f3488f6efc5ec130b0f473b0ff2370b3729.png" width="450"><br>**Settings Page** |
+| <img src="https://i.imagesup.co/images2/4cbdf35a3b55ac7273d2aae49d30e294239316cb.png" width="450"><br>**Build Page** | <img src="https://i.imagesup.co/images2/0ed66aae8164863eec6eeb7247724b694f25d6f9.png" width="450"><br>**History Page** | <img src="https://i.imagesup.co/images2/b689f1a8f013943e283498c60a879f7add63b33e.png" width="450"><br>**Settings Page** |
 
 ---
 
